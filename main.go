@@ -315,7 +315,7 @@ func writePackageDoc(out io.Writer, modulePath string, packageImportPath string)
 		}
 		printFunc(out, fset, modulePath, docPkg.ImportPath, imports, localSymbols, func_)
 	}
-	if len(docPkgs.Funcs) == 0 {
+	if len(docPkg.Funcs) == 0 {
 		fmt.Fprintln(out, "This section is empty.")
 	}
 
@@ -350,7 +350,7 @@ func writePackageDoc(out io.Writer, modulePath string, packageImportPath string)
 			}
 		}
 	}
-	if len(docPkgs.Types) == 0 {
+	if len(docPkg.Types) == 0 {
 		fmt.Fprintln(out, "This section is empty.")
 	}
 
