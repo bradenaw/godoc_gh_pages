@@ -89,7 +89,7 @@ func main() {
 		indexOut, err := os.OpenFile(
 			filepath.Join(outDir, "index.md"),
 			os.O_WRONLY|os.O_APPEND|os.O_CREATE,
-			0,
+			0664, // rw-rw-r--
 		)
 		if err != nil {
 			return xerrors.WithStack(err)
