@@ -86,7 +86,11 @@ func main() {
 			}
 		}
 
-		indexOut, err := os.OpenFile(filepath.Join(outDir, "index.md"), os.O_WRONLY|os.O_APPEND, 0)
+		indexOut, err := os.OpenFile(
+			filepath.Join(outDir, "index.md"),
+			os.O_WRONLY|os.O_APPEND|os.O_CREATE,
+			0,
+		)
 		if err != nil {
 			return xerrors.WithStack(err)
 		}
