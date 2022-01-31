@@ -47,21 +47,32 @@ func main() {
 		if err != nil {
 			return xerrors.WithStack(err)
 		}
-		indexOut, err := os.Create(filepath.Join(outDir, "index.md"))
+
+		err = os.Truncate(filepath.Join(outDir, "index.md"), 0)
 		if err != nil {
 			return xerrors.WithStack(err)
 		}
 
+		hasBase := false
+		hasNotBase := false
 		for _, pkg := range packages {
-			pkgRel := strings.TrimPrefix(pkg, modBasePath+"/")
-			err := os.MkdirAll(
-				filepath.Join(outDir, filepath.Dir(pkgRel)),
-				os.ModeDir|0755,
-			)
-			if err != nil {
-				return xerrors.WithStack(err)
+			var path string
+			if pkg == modBasePath {
+				hasBase = true
+				path = filepath.Join(outDir, "index.md")
+			} else {
+				hasNotBase = true
+				pkgRel := strings.TrimPrefix(pkg, modBasePath+"/")
+				err := os.MkdirAll(
+					filepath.Join(outDir, filepath.Dir(pkgRel)),
+					os.ModeDir|0755,
+				)
+				if err != nil {
+					return xerrors.WithStack(err)
+				}
+				path = filepath.Join(outDir, pkgRel+".md")
 			}
-			out, err := os.Create(filepath.Join(outDir, pkgRel+".md"))
+			out, err := os.Create(path)
 			if err != nil {
 				return xerrors.WithStack(err)
 			}
@@ -69,6 +80,26 @@ func main() {
 			if err != nil {
 				return err
 			}
+			err = out.Close()
+			if err != nil {
+				return err
+			}
+		}
+
+		indexOut, err := os.OpenFile(filepath.Join(outDir, "index.md"), os.O_WRONLY|os.O_APPEND, 0)
+		if err != nil {
+			return xerrors.WithStack(err)
+		}
+		if hasBase && hasNotBase {
+			_, err = fmt.Fprintf(indexOut, "\n\n## Subpackages")
+			if err != nil {
+			}
+		}
+		for _, pkg := range packages {
+			if pkg == modBasePath {
+				continue
+			}
+			pkgRel := strings.TrimPrefix(pkg, modBasePath+"/")
 			_, err = fmt.Fprintf(
 				indexOut,
 				"<samp><a href=\"%s.html\">%s</a></samp>\n\n",
@@ -78,6 +109,10 @@ func main() {
 			if err != nil {
 				return err
 			}
+		}
+		err = indexOut.Close()
+		if err != nil {
+			return err
 		}
 		return nil
 	}()
@@ -147,10 +182,12 @@ func writePackageDoc(out io.Writer, modulePath string, packageImportPath string)
 		}
 	}()
 
-	pkg, err := build.Default.ImportDir(
-		strings.TrimPrefix(packageImportPath, modulePath+"/"),
-		build.ImportComment,
-	)
+	dirPath := strings.TrimPrefix(packageImportPath, modulePath+"/")
+	if packageImportPath == modulePath {
+		dirPath = "."
+	}
+
+	pkg, err := build.Default.ImportDir(dirPath, build.ImportComment)
 	if err != nil {
 		return xerrors.WithStack(err)
 	}
