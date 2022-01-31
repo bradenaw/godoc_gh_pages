@@ -49,7 +49,7 @@ func main() {
 		}
 
 		err = os.Truncate(filepath.Join(outDir, "index.md"), 0)
-		if err != nil {
+		if err != nil && !os.IsNotExist(err) {
 			return xerrors.WithStack(err)
 		}
 
