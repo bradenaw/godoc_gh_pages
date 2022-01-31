@@ -20,8 +20,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/bradenaw/juniper/xerrors"
 	"github.com/bradenaw/juniper/slices"
+	"github.com/bradenaw/juniper/xerrors"
 )
 
 func main() {
@@ -39,7 +39,7 @@ func main() {
 			return err
 		}
 
-		packages = slices.Filter(packages, func(packagePath string) bool  {
+		packages = slices.Filter(packages, func(packagePath string) bool {
 			return !strings.Contains(packagePath, "/internal/")
 		})
 
@@ -53,7 +53,7 @@ func main() {
 		}
 
 		for _, pkg := range packages {
-			pkgRel := strings.TrimPrefix(pkg, modBasePath +"/")
+			pkgRel := strings.TrimPrefix(pkg, modBasePath+"/")
 			err := os.MkdirAll(
 				filepath.Join(outDir, filepath.Dir(pkgRel)),
 				os.ModeDir|0755,
@@ -61,7 +61,7 @@ func main() {
 			if err != nil {
 				return xerrors.WithStack(err)
 			}
-			out, err := os.Create(filepath.Join(outDir, pkgRel + ".md"))
+			out, err := os.Create(filepath.Join(outDir, pkgRel+".md"))
 			if err != nil {
 				return xerrors.WithStack(err)
 			}
@@ -148,7 +148,7 @@ func writePackageDoc(out io.Writer, modulePath string, packageImportPath string)
 	}()
 
 	pkg, err := build.Default.ImportDir(
-		strings.TrimPrefix(packageImportPath, modulePath + "/"),
+		strings.TrimPrefix(packageImportPath, modulePath+"/"),
 		build.ImportComment,
 	)
 	if err != nil {
@@ -315,6 +315,9 @@ func writePackageDoc(out io.Writer, modulePath string, packageImportPath string)
 		}
 		printFunc(out, fset, modulePath, docPkg.ImportPath, imports, localSymbols, func_)
 	}
+	if len(docPkgs.Funcs) == 0 {
+		fmt.Fprintln(out, "This section is empty.")
+	}
 
 	fmt.Fprintln(out, "## Types")
 	fmt.Fprintln(out)
@@ -346,6 +349,9 @@ func writePackageDoc(out io.Writer, modulePath string, packageImportPath string)
 				printFunc(out, fset, modulePath, docPkg.ImportPath, imports, localSymbols, func_)
 			}
 		}
+	}
+	if len(docPkgs.Types) == 0 {
+		fmt.Fprintln(out, "This section is empty.")
 	}
 
 	return nil
