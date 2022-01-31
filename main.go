@@ -317,6 +317,7 @@ func writePackageDoc(out io.Writer, modulePath string, packageImportPath string)
 	}
 	if len(docPkg.Funcs) == 0 {
 		fmt.Fprintln(out, "This section is empty.")
+		fmt.Fprintln(out)
 	}
 
 	fmt.Fprintln(out, "## Types")
@@ -352,6 +353,7 @@ func writePackageDoc(out io.Writer, modulePath string, packageImportPath string)
 	}
 	if len(docPkg.Types) == 0 {
 		fmt.Fprintln(out, "This section is empty.")
+		fmt.Fprintln(out)
 	}
 
 	return nil
