@@ -563,6 +563,9 @@ func strWithLinks(
 			visit(node.Value)
 		case *ast.Ellipsis:
 			sb.WriteString("...")
+			if node.Elt != nil {
+				visit(node.Elt)
+			}
 		case *ast.FuncDecl:
 			sb.WriteString("func ")
 			if node.Recv != nil {
