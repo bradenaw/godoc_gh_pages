@@ -413,7 +413,17 @@ func printFunc(
 	fmt.Fprint(out, func_.Name)
 	fmt.Fprint(out, "\"></a><samp>")
 	fmt.Fprint(out, strWithLinks(fset, modulePath, packagePath, imports, localSymbols, func_.Decl))
-	fmt.Fprintln(out, "</samp></h3>")
+	fmt.Fprint(out, "</samp>")
+	pos := fset.Position(func_.Decl.Pos())
+	if pos.IsValid() {
+		fmt.Fprint(out, "<sub class=\"float-right\"><small><a href=\"https://")
+		fmt.Fprint(out, modulePath)
+		fmt.Fprint(out, "/blob/main/")
+		fmt.Fprint(out, pos.Filename)
+		fmt.Fprintf(out, "#L%d", pos.Line)
+		fmt.Fprint(out, "\">src</a></small></sub>")
+	}
+	fmt.Fprintln(out, "</h3>")
 	fmt.Fprintln(out)
 	fmt.Fprintln(out, func_.Doc)
 	fmt.Fprintln(out)
